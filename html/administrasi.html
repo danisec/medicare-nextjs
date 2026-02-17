@@ -1,0 +1,1454 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MediCare Center - Administrasi & Appointment</title>
+    <meta
+      name="description"
+      content="Modern Hospital Dashboard Overview for MediCare Center"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@100..900&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style type="text/tailwindcss">
+      :root {
+        --primary: #165dff;
+        --primary-hover: #0e4bd9;
+        --foreground: #080c1a;
+        --secondary: #6a7686;
+        --muted: #eff2f7;
+        --border: #f3f4f3;
+        --card-grey: #f1f3f6;
+        --success: #30b22d;
+        --success-light: #dcfce7;
+        --error: #ed6b60;
+        --error-light: #fee2e2;
+        --warning: #fed71f;
+        --warning-light: #fef9c3;
+        --font-sans: "Lexend Deca", sans-serif;
+      }
+      @theme inline {
+        --color-primary: var(--primary);
+        --color-primary-hover: var(--primary-hover);
+        --color-foreground: var(--foreground);
+        --color-secondary: var(--secondary);
+        --color-muted: var(--muted);
+        --color-border: var(--border);
+        --color-card-grey: var(--card-grey);
+        --color-success: var(--success);
+        --color-success-light: var(--success-light);
+        --color-error: var(--error);
+        --color-error-light: var(--error-light);
+        --color-warning: var(--warning);
+        --color-warning-light: var(--warning-light);
+        --font-sans: var(--font-sans);
+        --radius-card: 24px;
+        --radius-button: 50px;
+        --radius-icon: 12px;
+      }
+      .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+      }
+      .scrollbar-hide {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+
+      /* Toast Animation */
+      @keyframes slideIn {
+        from {
+          transform: translateX(100%);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+      .toast-enter {
+        animation: slideIn 0.3s ease-out forwards;
+      }
+    </style>
+  </head>
+  <body
+    class="font-sans bg-muted min-h-screen overflow-x-hidden text-foreground"
+  >
+    <!-- Mobile Overlay -->
+    <div
+      id="sidebar-overlay"
+      class="fixed inset-0 bg-black/80 z-40 lg:hidden hidden"
+      onclick="toggleSidebar()"
+    ></div>
+
+    <div class="flex h-screen max-h-screen overflow-hidden">
+      <!-- SIDEBAR -->
+      <aside
+        id="sidebar"
+        class="flex flex-col w-[280px] shrink-0 h-screen fixed inset-y-0 left-0 z-50 bg-white border-r border-border transform -translate-x-full lg:translate-x-0 transition-transform duration-300 overflow-hidden"
+      >
+        <!-- Top Bar with logo -->
+        <div
+          class="flex items-center justify-between border-b border-border h-[90px] px-5 gap-3"
+        >
+          <div class="flex items-center gap-3">
+            <div
+              class="size-11 bg-primary rounded-xl flex items-center justify-center shrink-0"
+            >
+              <i data-lucide="activity" class="size-6 text-white"></i>
+            </div>
+            <div>
+              <h1 class="font-bold text-lg leading-tight">MediCare</h1>
+              <p class="text-xs text-secondary font-medium">Center</p>
+            </div>
+          </div>
+          <button
+            onclick="toggleSidebar()"
+            aria-label="Close sidebar"
+            class="lg:hidden size-11 flex shrink-0 bg-white rounded-xl p-[10px] items-center justify-center ring-1 ring-border hover:ring-primary transition-all duration-300 cursor-pointer"
+          >
+            <i data-lucide="x" class="size-6 text-secondary"></i>
+          </button>
+        </div>
+
+        <!-- Navigation Menu -->
+        <div class="flex flex-col p-5 gap-6 overflow-y-auto flex-1">
+          <div class="flex flex-col gap-4">
+            <h3
+              class="font-medium text-xs text-secondary uppercase tracking-wider"
+            >
+              Menu Utama
+            </h3>
+            <div class="flex flex-col gap-1">
+              <!-- Beranda (Not Active) -->
+              <a href="#" class="group cursor-pointer">
+                <div
+                  class="flex items-center rounded-xl p-4 gap-3 bg-white hover:bg-muted transition-all duration-300"
+                >
+                  <i
+                    data-lucide="layout-dashboard"
+                    class="size-6 text-secondary group-hover:text-foreground transition-all duration-300"
+                  ></i>
+                  <span
+                    class="font-medium text-secondary group-hover:text-foreground transition-all duration-300"
+                    >Beranda</span
+                  >
+                </div>
+              </a>
+              <!-- Pasien (Not Active) -->
+              <a href="#" class="group cursor-pointer">
+                <div
+                  class="flex items-center rounded-xl p-4 gap-3 bg-white hover:bg-muted transition-all duration-300"
+                >
+                  <i
+                    data-lucide="users"
+                    class="size-6 text-secondary group-hover:text-foreground transition-all duration-300"
+                  ></i>
+                  <span
+                    class="font-medium text-secondary group-hover:text-foreground transition-all duration-300"
+                    >Pasien</span
+                  >
+                </div>
+              </a>
+              <!-- Administrasi (Active) -->
+              <a href="#" class="group active cursor-pointer">
+                <div
+                  class="flex items-center rounded-xl p-4 gap-3 bg-white group-[.active]:bg-primary/5 group-hover:bg-muted transition-all duration-300"
+                >
+                  <i
+                    data-lucide="folder-kanban"
+                    class="size-6 text-secondary group-[.active]:text-primary group-hover:text-foreground transition-all duration-300"
+                  ></i>
+                  <span
+                    class="font-medium text-secondary group-[.active]:font-semibold group-[.active]:text-primary group-hover:text-foreground transition-all duration-300"
+                    >Administrasi</span
+                  >
+                </div>
+              </a>
+            </div>
+          </div>
+
+          <div class="flex flex-col gap-4 mt-auto">
+            <h3
+              class="font-medium text-xs text-secondary uppercase tracking-wider"
+            >
+              Lainnya
+            </h3>
+            <div class="flex flex-col gap-1">
+              <a href="#" class="group cursor-pointer">
+                <div
+                  class="flex items-center rounded-xl p-4 gap-3 bg-white hover:bg-muted transition-all duration-300"
+                >
+                  <i
+                    data-lucide="settings"
+                    class="size-6 text-secondary group-hover:text-foreground transition-all duration-300"
+                  ></i>
+                  <span
+                    class="font-medium text-secondary group-hover:text-foreground transition-all duration-300"
+                    >Pengaturan</span
+                  >
+                </div>
+              </a>
+              <a href="#" class="group cursor-pointer">
+                <div
+                  class="flex items-center rounded-xl p-4 gap-3 bg-white hover:bg-muted transition-all duration-300"
+                >
+                  <i
+                    data-lucide="help-circle"
+                    class="size-6 text-secondary group-hover:text-foreground transition-all duration-300"
+                  ></i>
+                  <span
+                    class="font-medium text-secondary group-hover:text-foreground transition-all duration-300"
+                    >Bantuan</span
+                  >
+                </div>
+              </a>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- MAIN CONTENT -->
+      <main
+        class="flex-1 lg:ml-[280px] flex flex-col bg-muted min-h-screen overflow-hidden"
+      >
+        <!-- Top Header Bar -->
+        <header
+          class="flex items-center justify-between w-full h-[90px] shrink-0 bg-white border-b border-border px-5 md:px-8"
+        >
+          <!-- Left: Mobile menu & Title -->
+          <div class="flex items-center gap-4">
+            <button
+              onclick="toggleSidebar()"
+              aria-label="Open menu"
+              class="lg:hidden size-11 flex items-center justify-center rounded-xl ring-1 ring-border hover:ring-primary transition-all duration-300 cursor-pointer"
+            >
+              <i data-lucide="menu" class="size-6 text-foreground"></i>
+            </button>
+            <div class="hidden lg:flex flex-col">
+              <h2 class="font-bold text-2xl text-foreground">
+                Administrasi & Appointment
+              </h2>
+              <p class="text-sm text-secondary">
+                Kelola janji temu, antrian, dan pembayaran
+              </p>
+            </div>
+          </div>
+
+          <!-- Center: Real-time Date/Time (Desktop only) -->
+          <div
+            class="hidden md:flex items-center gap-2 px-4 py-2 bg-muted rounded-xl"
+          >
+            <i data-lucide="clock" class="size-4 text-primary"></i>
+            <span
+              id="realtime-clock"
+              class="font-mono text-sm font-semibold text-primary"
+              >00:00:00</span
+            >
+            <span class="text-secondary text-sm">|</span>
+            <span id="realtime-date" class="text-sm font-medium text-foreground"
+              >Jan 01, 2024</span
+            >
+          </div>
+
+          <!-- Right: Actions & Profile -->
+          <div class="flex items-center gap-3">
+            <button
+              onclick="openSearchModal()"
+              class="size-11 flex items-center justify-center rounded-xl ring-1 ring-border hover:ring-primary transition-all duration-300 cursor-pointer"
+              aria-label="Search"
+            >
+              <i data-lucide="search" class="size-6 text-secondary"></i>
+            </button>
+            <button
+              class="size-11 flex items-center justify-center rounded-xl ring-1 ring-border hover:ring-primary transition-all duration-300 cursor-pointer relative"
+              aria-label="Notifications"
+            >
+              <i data-lucide="bell" class="size-6 text-secondary"></i>
+              <span
+                class="absolute top-2.5 right-3 size-2 rounded-full bg-error ring-2 ring-white"
+              ></span>
+            </button>
+
+            <!-- Doctor Profile -->
+            <div
+              class="hidden md:flex items-center gap-3 pl-3 border-l border-border ml-2"
+            >
+              <div class="text-right">
+                <p class="font-semibold text-foreground text-sm">
+                  Dr. Budi Hartono
+                </p>
+                <p class="text-secondary text-xs">Spesialis Jantung</p>
+              </div>
+              <div class="relative">
+                <img
+                  src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=100&h=100&fit=crop"
+                  alt="Dr. Profile"
+                  class="size-11 rounded-full object-cover ring-2 ring-border"
+                />
+                <span
+                  class="absolute bottom-0 right-0 size-3 rounded-full bg-success ring-2 ring-white"
+                ></span>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <!-- Page Content Scroll Area -->
+        <div class="flex-1 overflow-y-auto p-5 md:p-8">
+          <!-- New Summary Cards -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <!-- Card 1: Appointment Masuk -->
+            <div
+              class="flex items-center justify-between p-6 bg-white rounded-2xl border border-border shadow-sm"
+            >
+              <div class="flex items-center gap-4">
+                <div
+                  class="size-12 bg-primary/10 rounded-xl flex items-center justify-center"
+                >
+                  <i data-lucide="calendar" class="size-6 text-primary"></i>
+                </div>
+                <div>
+                  <p class="text-sm font-medium text-secondary">
+                    Appointment Masuk
+                  </p>
+                  <h3 class="text-2xl font-bold text-foreground mt-0.5">42</h3>
+                </div>
+              </div>
+              <div class="flex flex-col items-end">
+                <span
+                  class="text-xs font-bold text-primary bg-blue-100 px-2 py-1 rounded-full"
+                  >Baru</span
+                >
+                <p class="text-xs text-secondary mt-1">Hari ini</p>
+              </div>
+            </div>
+
+            <!-- Card 2: Sedang Diproses -->
+            <div
+              class="flex items-center justify-between p-6 bg-white rounded-2xl border border-border shadow-sm"
+            >
+              <div class="flex items-center gap-4">
+                <div
+                  class="size-12 bg-warning-light rounded-xl flex items-center justify-center"
+                >
+                  <i
+                    data-lucide="loader-2"
+                    class="size-6 text-warning-dark"
+                  ></i>
+                </div>
+                <div>
+                  <p class="text-sm font-medium text-secondary">
+                    Sedang Diproses
+                  </p>
+                  <h3 class="text-2xl font-bold text-foreground mt-0.5">18</h3>
+                </div>
+              </div>
+              <div class="flex flex-col items-end">
+                <span
+                  class="text-xs font-bold text-warning-dark bg-warning-light px-2 py-1 rounded-full"
+                  >Proses</span
+                >
+                <p class="text-xs text-secondary mt-1">Aktif</p>
+              </div>
+            </div>
+
+            <!-- Card 3: Selesai -->
+            <div
+              class="flex items-center justify-between p-6 bg-white rounded-2xl border border-border shadow-sm"
+            >
+              <div class="flex items-center gap-4">
+                <div
+                  class="size-12 bg-success-light rounded-xl flex items-center justify-center"
+                >
+                  <i data-lucide="check-circle" class="size-6 text-success"></i>
+                </div>
+                <div>
+                  <p class="text-sm font-medium text-secondary">Selesai</p>
+                  <h3 class="text-2xl font-bold text-foreground mt-0.5">156</h3>
+                </div>
+              </div>
+              <div class="flex flex-col items-end">
+                <span
+                  class="text-xs font-bold text-success bg-success-light px-2 py-1 rounded-full"
+                  >+12%</span
+                >
+                <p class="text-xs text-secondary mt-1">Total</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Middle Section: Chart & Queue Widget -->
+          <div class="flex flex-col lg:flex-row gap-6 mb-8">
+            <!-- Bar Chart (60%) -->
+            <div
+              class="w-full lg:w-[60%] bg-white rounded-2xl border border-border shadow-sm p-6"
+            >
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="font-bold text-lg text-foreground">
+                  Tren Poli Populer
+                </h3>
+                <select
+                  class="text-xs border border-border rounded-lg px-2 py-1 bg-muted text-secondary outline-none"
+                >
+                  <option>Minggu Ini</option>
+                  <option>Bulan Ini</option>
+                </select>
+              </div>
+              <div class="w-full h-[300px]">
+                <canvas id="poliChart"></canvas>
+              </div>
+            </div>
+
+            <!-- Queue Widget (40%) -->
+            <div
+              class="w-full lg:w-[40%] bg-white rounded-2xl border border-border shadow-sm p-6 flex flex-col"
+            >
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="font-bold text-lg text-foreground">Antrian Loket</h3>
+                <span
+                  class="size-2 bg-green-500 rounded-full animate-pulse"
+                ></span>
+              </div>
+
+              <div class="flex flex-col gap-4 flex-1">
+                <!-- Loket 1 -->
+                <div
+                  class="flex items-center justify-between p-4 bg-muted rounded-xl border border-border"
+                >
+                  <div class="flex items-center gap-3">
+                    <div
+                      class="size-10 bg-white rounded-lg flex items-center justify-center shadow-sm"
+                    >
+                      <span class="font-bold text-primary text-lg">A</span>
+                    </div>
+                    <div>
+                      <p class="text-xs text-secondary font-medium uppercase">
+                        Loket Pendaftaran
+                      </p>
+                      <h4 class="text-xl font-bold text-foreground">A-042</h4>
+                    </div>
+                  </div>
+                  <div
+                    class="px-3 py-1 bg-success-light text-success text-xs font-bold rounded-full"
+                  >
+                    Serving
+                  </div>
+                </div>
+
+                <!-- Loket 2 -->
+                <div
+                  class="flex items-center justify-between p-4 bg-muted rounded-xl border border-border"
+                >
+                  <div class="flex items-center gap-3">
+                    <div
+                      class="size-10 bg-white rounded-lg flex items-center justify-center shadow-sm"
+                    >
+                      <span class="font-bold text-orange-500 text-lg">B</span>
+                    </div>
+                    <div>
+                      <p class="text-xs text-secondary font-medium uppercase">
+                        Loket Pembayaran
+                      </p>
+                      <h4 class="text-xl font-bold text-foreground">B-015</h4>
+                    </div>
+                  </div>
+                  <div
+                    class="px-3 py-1 bg-success-light text-success text-xs font-bold rounded-full"
+                  >
+                    Serving
+                  </div>
+                </div>
+
+                <!-- Farmasi -->
+                <div
+                  class="flex items-center justify-between p-4 bg-muted rounded-xl border border-border mt-auto"
+                >
+                  <div class="flex items-center gap-3">
+                    <div
+                      class="size-10 bg-white rounded-lg flex items-center justify-center shadow-sm"
+                    >
+                      <span class="font-bold text-purple-500 text-lg">F</span>
+                    </div>
+                    <div>
+                      <p class="text-xs text-secondary font-medium uppercase">
+                        Farmasi / Obat
+                      </p>
+                      <h4 class="text-xl font-bold text-foreground">F-089</h4>
+                    </div>
+                  </div>
+                  <div
+                    class="px-3 py-1 bg-warning-light text-warning-dark text-xs font-bold rounded-full"
+                  >
+                    Waiting
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Payment History Table -->
+          <div
+            class="flex flex-col rounded-2xl border border-border bg-white shadow-sm overflow-hidden"
+          >
+            <div
+              class="p-5 border-b border-border flex justify-between items-center bg-gray-50"
+            >
+              <h3 class="font-bold text-lg text-foreground">
+                Riwayat Pembayaran
+              </h3>
+              <button
+                class="flex items-center gap-2 px-4 py-2 bg-white border border-border rounded-xl text-sm font-medium hover:bg-muted text-foreground transition-all shadow-sm"
+              >
+                <i data-lucide="printer" class="size-4 text-secondary"></i>
+                Cetak Invoice PDF
+              </button>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full min-w-[900px]" id="payment-table">
+                <thead class="bg-gray-50 border-b border-border">
+                  <tr>
+                    <th
+                      class="px-6 py-4 text-left text-xs font-bold text-secondary uppercase tracking-wider"
+                    >
+                      No
+                    </th>
+                    <th
+                      class="px-6 py-4 text-left text-xs font-bold text-secondary uppercase tracking-wider"
+                    >
+                      Pasien
+                    </th>
+                    <th
+                      class="px-6 py-4 text-left text-xs font-bold text-secondary uppercase tracking-wider"
+                    >
+                      Poli
+                    </th>
+                    <th
+                      class="px-6 py-4 text-left text-xs font-bold text-secondary uppercase tracking-wider"
+                    >
+                      Tanggal
+                    </th>
+                    <th
+                      class="px-6 py-4 text-left text-xs font-bold text-secondary uppercase tracking-wider"
+                    >
+                      Total
+                    </th>
+                    <th
+                      class="px-6 py-4 text-center text-xs font-bold text-secondary uppercase tracking-wider"
+                    >
+                      Status
+                    </th>
+                    <th
+                      class="px-6 py-4 text-right text-xs font-bold text-secondary uppercase tracking-wider"
+                    >
+                      Aksi
+                    </th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-border bg-white">
+                  <!-- Row 1 -->
+                  <tr class="hover:bg-muted/30 transition-colors">
+                    <td class="px-6 py-4 text-sm font-medium text-secondary">
+                      1
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <div class="flex items-center gap-3">
+                        <div
+                          class="size-8 bg-primary/10 rounded-full flex items-center justify-center text-primary font-bold text-xs"
+                        >
+                          AS
+                        </div>
+                        <div>
+                          <div class="text-sm font-bold text-foreground">
+                            Ahmad Santoso
+                          </div>
+                          <div class="text-xs text-secondary">RM-2024-001</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td
+                      class="px-6 py-4 whitespace-nowrap text-sm text-foreground"
+                    >
+                      Poli Penyakit Dalam
+                    </td>
+                    <td
+                      class="px-6 py-4 whitespace-nowrap text-sm text-secondary font-mono"
+                    >
+                      24 Jan 2024
+                    </td>
+                    <td
+                      class="px-6 py-4 whitespace-nowrap text-sm font-bold text-foreground"
+                    >
+                      Rp 150.000
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                      <span
+                        class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-success-light text-success border border-success/20"
+                        >Lunas</span
+                      >
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right">
+                      <button
+                        class="text-xs font-medium text-primary hover:text-primary-hover border border-primary/20 hover:bg-primary/5 px-3 py-1.5 rounded-lg transition-all"
+                      >
+                        + Buat Invoice
+                      </button>
+                    </td>
+                  </tr>
+                  <!-- Row 2 -->
+                  <tr class="hover:bg-muted/30 transition-colors">
+                    <td class="px-6 py-4 text-sm font-medium text-secondary">
+                      2
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <div class="flex items-center gap-3">
+                        <img
+                          src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop"
+                          class="size-8 rounded-full object-cover"
+                        />
+                        <div>
+                          <div class="text-sm font-bold text-foreground">
+                            Siti Aminah
+                          </div>
+                          <div class="text-xs text-secondary">RM-2024-042</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td
+                      class="px-6 py-4 whitespace-nowrap text-sm text-foreground"
+                    >
+                      IGD (Darurat)
+                    </td>
+                    <td
+                      class="px-6 py-4 whitespace-nowrap text-sm text-secondary font-mono"
+                    >
+                      24 Jan 2024
+                    </td>
+                    <td
+                      class="px-6 py-4 whitespace-nowrap text-sm font-bold text-foreground"
+                    >
+                      Rp 450.000
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                      <span
+                        class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-warning-light text-warning-dark border border-warning/20"
+                        >Pending</span
+                      >
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right">
+                      <button
+                        class="text-xs font-medium text-primary hover:text-primary-hover border border-primary/20 hover:bg-primary/5 px-3 py-1.5 rounded-lg transition-all"
+                      >
+                        + Buat Invoice
+                      </button>
+                    </td>
+                  </tr>
+                  <!-- Row 3 -->
+                  <tr class="hover:bg-muted/30 transition-colors">
+                    <td class="px-6 py-4 text-sm font-medium text-secondary">
+                      3
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <div class="flex items-center gap-3">
+                        <div
+                          class="size-8 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 font-bold text-xs"
+                        >
+                          BH
+                        </div>
+                        <div>
+                          <div class="text-sm font-bold text-foreground">
+                            Budi Hartono
+                          </div>
+                          <div class="text-xs text-secondary">RM-2024-089</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td
+                      class="px-6 py-4 whitespace-nowrap text-sm text-foreground"
+                    >
+                      Poli Jantung
+                    </td>
+                    <td
+                      class="px-6 py-4 whitespace-nowrap text-sm text-secondary font-mono"
+                    >
+                      23 Jan 2024
+                    </td>
+                    <td
+                      class="px-6 py-4 whitespace-nowrap text-sm font-bold text-foreground"
+                    >
+                      Rp 1.200.000
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                      <span
+                        class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-success-light text-success border border-success/20"
+                        >Lunas</span
+                      >
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right">
+                      <button
+                        class="text-xs font-medium text-primary hover:text-primary-hover border border-primary/20 hover:bg-primary/5 px-3 py-1.5 rounded-lg transition-all"
+                      >
+                        + Buat Invoice
+                      </button>
+                    </td>
+                  </tr>
+                  <!-- Row 4 -->
+                  <tr class="hover:bg-muted/30 transition-colors">
+                    <td class="px-6 py-4 text-sm font-medium text-secondary">
+                      4
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <div class="flex items-center gap-3">
+                        <img
+                          src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop"
+                          class="size-8 rounded-full object-cover"
+                        />
+                        <div>
+                          <div class="text-sm font-bold text-foreground">
+                            Rina Wati
+                          </div>
+                          <div class="text-xs text-secondary">RM-2024-156</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td
+                      class="px-6 py-4 whitespace-nowrap text-sm text-foreground"
+                    >
+                      Poli Gigi
+                    </td>
+                    <td
+                      class="px-6 py-4 whitespace-nowrap text-sm text-secondary font-mono"
+                    >
+                      23 Jan 2024
+                    </td>
+                    <td
+                      class="px-6 py-4 whitespace-nowrap text-sm font-bold text-foreground"
+                    >
+                      Rp 350.000
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                      <span
+                        class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-success-light text-success border border-success/20"
+                        >Lunas</span
+                      >
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right">
+                      <button
+                        class="text-xs font-medium text-primary hover:text-primary-hover border border-primary/20 hover:bg-primary/5 px-3 py-1.5 rounded-lg transition-all"
+                      >
+                        + Buat Invoice
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Footer Copyright -->
+          <div class="mt-8 text-center md:text-left text-xs text-secondary">
+            &copy; 2024 MediCare Center Hospital System. All rights reserved.
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Search Modal -->
+    <div
+      id="search-modal"
+      class="fixed inset-0 bg-black/50 z-[100] hidden items-center justify-center p-4"
+    >
+      <div
+        class="bg-white rounded-3xl w-full max-w-2xl max-h-[80vh] overflow-hidden shadow-2xl"
+      >
+        <div class="p-4 border-b border-border">
+          <div class="flex items-center gap-3 bg-muted rounded-xl px-4">
+            <i data-lucide="search" class="size-5 text-secondary"></i>
+            <input
+              type="text"
+              id="search-input"
+              placeholder="Cari pasien, dokter, atau layanan..."
+              class="flex-1 py-3 bg-transparent outline-none text-foreground placeholder:text-secondary"
+            />
+            <button
+              onclick="closeSearchModal()"
+              class="text-xs bg-white px-2 py-1 rounded border border-border text-secondary"
+            >
+              ESC
+            </button>
+          </div>
+        </div>
+        <div class="p-4">
+          <p class="text-sm text-secondary mb-3">Pencarian Terakhir</p>
+          <div class="flex flex-col gap-2">
+            <a
+              href="#"
+              class="flex items-center gap-3 p-3 rounded-xl hover:bg-muted transition-all cursor-pointer"
+            >
+              <div
+                class="size-10 bg-primary/10 rounded-xl flex items-center justify-center"
+              >
+                <i data-lucide="user" class="size-5 text-primary"></i>
+              </div>
+              <div>
+                <p class="font-medium text-foreground">Ahmad Santoso</p>
+                <p class="text-xs text-secondary">Pasien - RM-2024-001</p>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Page Not Found Modal -->
+    <div
+      id="page-not-found-modal"
+      class="fixed inset-0 bg-black/50 z-[100] hidden flex items-center justify-center p-4"
+    >
+      <div class="bg-white rounded-card p-6 max-w-sm w-full text-center">
+        <div
+          class="w-16 h-16 bg-warning-light rounded-full flex items-center justify-center mx-auto mb-4"
+        >
+          <i data-lucide="alert-triangle" class="w-8 h-8 text-warning-dark"></i>
+        </div>
+        <h3 class="text-foreground text-xl font-bold mb-2">
+          Halaman Belum Tersedia
+        </h3>
+        <p class="text-gray-500 text-sm mb-6">
+          Fitur ini belum diimplementasikan dalam demo ini.
+        </p>
+        <button
+          onclick="
+            document
+              .getElementById('page-not-found-modal')
+              .classList.add('hidden')
+          "
+          class="w-full px-4 py-2.5 bg-primary text-white rounded-button font-medium hover:bg-primary-hover transition-all duration-200 cursor-pointer"
+        >
+          Mengerti
+        </button>
+      </div>
+    </div>
+
+    <!-- Add/Edit Patient Modal -->
+    <div
+      id="patient-modal"
+      class="fixed inset-0 bg-black/50 z-[60] hidden flex items-center justify-center p-4"
+    >
+      <div
+        class="bg-white rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl relative"
+      >
+        <div
+          class="p-6 border-b border-border flex justify-between items-center sticky top-0 bg-white z-10"
+        >
+          <h3 class="text-xl font-bold text-foreground" id="modal-title">
+            Tambah Pasien Baru
+          </h3>
+          <button
+            onclick="closePatientModal()"
+            class="p-2 hover:bg-muted rounded-xl cursor-pointer"
+          >
+            <i data-lucide="x" class="size-5"></i>
+          </button>
+        </div>
+        <form
+          id="patient-form"
+          onsubmit="handleFormSubmit(event)"
+          class="p-6 space-y-4"
+        >
+          <!-- Hidden input to store row reference for editing -->
+          <input type="hidden" id="edit-row-index" />
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- No RM -->
+            <div class="space-y-1">
+              <label class="text-sm font-medium text-secondary"
+                >No. Rekam Medis <span class="text-error">*</span></label
+              >
+              <input
+                type="text"
+                id="input-rm"
+                class="w-full px-4 py-2 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 bg-gray-50 font-mono text-sm"
+                placeholder="RM-2024-XXX"
+              />
+              <span class="text-error text-xs hidden error-msg"
+                >Wajib diisi</span
+              >
+            </div>
+            <!-- NIK -->
+            <div class="space-y-1">
+              <label class="text-sm font-medium text-secondary"
+                >NIK <span class="text-error">*</span></label
+              >
+              <input
+                type="number"
+                id="input-nik"
+                class="w-full px-4 py-2 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20"
+                placeholder="16 digit NIK"
+              />
+              <span class="text-error text-xs hidden error-msg"
+                >Wajib diisi</span
+              >
+            </div>
+            <!-- Nama -->
+            <div class="space-y-1 md:col-span-2">
+              <label class="text-sm font-medium text-secondary"
+                >Nama Lengkap <span class="text-error">*</span></label
+              >
+              <input
+                type="text"
+                id="input-nama"
+                class="w-full px-4 py-2 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20"
+                placeholder="Nama Pasien"
+              />
+              <span class="text-error text-xs hidden error-msg"
+                >Wajib diisi</span
+              >
+            </div>
+            <!-- Tgl Lahir -->
+            <div class="space-y-1">
+              <label class="text-sm font-medium text-secondary"
+                >Tanggal Lahir <span class="text-error">*</span></label
+              >
+              <input
+                type="date"
+                id="input-dob"
+                class="w-full px-4 py-2 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20"
+              />
+              <span class="text-error text-xs hidden error-msg"
+                >Wajib diisi</span
+              >
+            </div>
+            <!-- Gender -->
+            <div class="space-y-1">
+              <label class="text-sm font-medium text-secondary"
+                >Jenis Kelamin <span class="text-error">*</span></label
+              >
+              <select
+                id="input-gender"
+                class="w-full px-4 py-2 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 bg-white"
+              >
+                <option value="">Pilih...</option>
+                <option value="Laki-laki">Laki-laki</option>
+                <option value="Perempuan">Perempuan</option>
+              </select>
+              <span class="text-error text-xs hidden error-msg"
+                >Wajib dipilih</span
+              >
+            </div>
+            <!-- No HP -->
+            <div class="space-y-1">
+              <label class="text-sm font-medium text-secondary"
+                >No. HP <span class="text-error">*</span></label
+              >
+              <input
+                type="tel"
+                id="input-phone"
+                class="w-full px-4 py-2 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20"
+                placeholder="0812..."
+              />
+              <span class="text-error text-xs hidden error-msg"
+                >Wajib diisi</span
+              >
+            </div>
+            <!-- Poli -->
+            <div class="space-y-1">
+              <label class="text-sm font-medium text-secondary"
+                >Poli / Layanan <span class="text-error">*</span></label
+              >
+              <select
+                id="input-poli"
+                class="w-full px-4 py-2 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 bg-white"
+              >
+                <option value="">Pilih...</option>
+                <option value="Poli Umum">Poli Umum</option>
+                <option value="Poli Gigi">Poli Gigi</option>
+                <option value="Poli Jantung">Poli Jantung</option>
+                <option value="Poli Penyakit Dalam">Poli Penyakit Dalam</option>
+                <option value="Poli Kandungan">Poli Kandungan</option>
+                <option value="IGD (Darurat)">IGD</option>
+              </select>
+              <span class="text-error text-xs hidden error-msg"
+                >Wajib dipilih</span
+              >
+            </div>
+            <!-- Status -->
+            <div class="space-y-1">
+              <label class="text-sm font-medium text-secondary"
+                >Status Perawatan <span class="text-error">*</span></label
+              >
+              <select
+                id="input-status"
+                class="w-full px-4 py-2 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 bg-white"
+              >
+                <option value="Rawat Jalan">Rawat Jalan</option>
+                <option value="Rawat Inap">Rawat Inap</option>
+                <option value="Observasi">Observasi</option>
+                <option value="Selesai">Selesai</option>
+              </select>
+            </div>
+            <!-- Alamat -->
+            <div class="space-y-1 md:col-span-2">
+              <label class="text-sm font-medium text-secondary"
+                >Alamat Lengkap <span class="text-error">*</span></label
+              >
+              <textarea
+                id="input-address"
+                rows="3"
+                class="w-full px-4 py-2 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none"
+              ></textarea>
+              <span class="text-error text-xs hidden error-msg"
+                >Wajib diisi</span
+              >
+            </div>
+          </div>
+
+          <div class="pt-4 border-t border-border flex justify-end gap-3">
+            <button
+              type="button"
+              onclick="closePatientModal()"
+              class="px-5 py-2.5 rounded-xl border border-border text-secondary font-medium hover:bg-muted transition-all cursor-pointer"
+            >
+              Batal
+            </button>
+            <button
+              type="submit"
+              class="px-5 py-2.5 rounded-xl bg-primary text-white font-bold hover:bg-primary-hover shadow-lg shadow-primary/30 transition-all cursor-pointer"
+            >
+              Simpan Data
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div
+      id="delete-modal"
+      class="fixed inset-0 bg-black/50 z-[70] hidden flex items-center justify-center p-4"
+    >
+      <div
+        class="bg-white rounded-2xl p-6 max-w-sm w-full text-center shadow-2xl"
+      >
+        <div
+          class="w-16 h-16 bg-error-light rounded-full flex items-center justify-center mx-auto mb-4"
+        >
+          <i data-lucide="trash-2" class="w-8 h-8 text-error"></i>
+        </div>
+        <h3 class="text-foreground text-xl font-bold mb-2">
+          Hapus Data Pasien?
+        </h3>
+        <p class="text-secondary text-sm mb-6">
+          Tindakan ini tidak dapat dibatalkan. Data pasien akan dihapus secara
+          permanen dari sistem.
+        </p>
+        <div class="flex gap-3 justify-center">
+          <button
+            onclick="closeDeleteModal()"
+            class="px-5 py-2.5 rounded-xl border border-border text-secondary font-medium hover:bg-muted transition-all cursor-pointer"
+          >
+            Batal
+          </button>
+          <button
+            onclick="confirmDelete()"
+            class="px-5 py-2.5 rounded-xl bg-error text-white font-bold hover:bg-red-600 shadow-lg shadow-error/30 transition-all cursor-pointer"
+          >
+            Ya, Hapus
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div
+      id="toast-notification"
+      class="fixed bottom-5 right-5 z-[80] hidden transform transition-all duration-300"
+    >
+      <div
+        class="flex items-center gap-3 bg-white border border-success/20 shadow-lg shadow-success/10 p-4 rounded-xl pr-6 relative overflow-hidden"
+      >
+        <div class="absolute inset-y-0 left-0 w-1 bg-success"></div>
+        <div
+          class="size-8 bg-success-light rounded-full flex items-center justify-center shrink-0"
+        >
+          <i data-lucide="check" class="size-5 text-success"></i>
+        </div>
+        <div>
+          <h4 class="font-bold text-foreground text-sm">Berhasil</h4>
+          <p id="toast-message" class="text-secondary text-xs">
+            Data pasien berhasil disimpan.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Initialize Icons
+      lucide.createIcons();
+
+      // Initialize Chart
+      document.addEventListener("DOMContentLoaded", function () {
+        const ctx = document.getElementById("poliChart").getContext("2d");
+        new Chart(ctx, {
+          type: "bar",
+          data: {
+            labels: [
+              "Poli Umum",
+              "Poli Gigi",
+              "Jantung",
+              "Peny. Dalam",
+              "Kandungan",
+              "IGD",
+            ],
+            datasets: [
+              {
+                label: "Jumlah Kunjungan",
+                data: [65, 45, 20, 35, 25, 15],
+                backgroundColor: [
+                  "rgba(22, 93, 255, 0.8)",
+                  "rgba(255, 159, 64, 0.8)",
+                  "rgba(153, 102, 255, 0.8)",
+                  "rgba(75, 192, 192, 0.8)",
+                  "rgba(54, 162, 235, 0.8)",
+                  "rgba(255, 99, 132, 0.8)",
+                ],
+                borderRadius: 8,
+                barThickness: 30,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false },
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                grid: { display: true, color: "#F3F4F3" },
+                ticks: { font: { family: "Lexend Deca" } },
+              },
+              x: {
+                grid: { display: false },
+                ticks: { font: { family: "Lexend Deca" } },
+              },
+            },
+          },
+        });
+      });
+
+      // Sidebar Toggle
+      function toggleSidebar() {
+        const sidebar = document.getElementById("sidebar");
+        const overlay = document.getElementById("sidebar-overlay");
+        sidebar.classList.toggle("-translate-x-full");
+        overlay.classList.toggle("hidden");
+        document.body.classList.toggle("overflow-hidden");
+      }
+
+      // Search Modal
+      function openSearchModal() {
+        const modal = document.getElementById("search-modal");
+        modal.classList.remove("hidden");
+        modal.classList.add("flex");
+        document.getElementById("search-input").focus();
+      }
+      function closeSearchModal() {
+        const modal = document.getElementById("search-modal");
+        modal.classList.add("hidden");
+        modal.classList.remove("flex");
+      }
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape") closeSearchModal();
+      });
+      document
+        .getElementById("search-modal")
+        .addEventListener("click", function (e) {
+          if (e.target === this) closeSearchModal();
+        });
+
+      // Link Handler for Demo
+      document.querySelectorAll("a").forEach((link) => {
+        link.addEventListener("click", function (e) {
+          e.preventDefault();
+          if (!this.classList.contains("active")) {
+            // Just for demo purposes, if they click other links show not found
+            // unless it's a filter dropdown item which we added with href="#"
+            if (!this.closest(".absolute")) {
+              // document.getElementById('page-not-found-modal').classList.remove('hidden');
+            }
+          }
+        });
+      });
+
+      // Real-time Clock
+      function updateClock() {
+        const now = new Date();
+        const timeString = now
+          .toLocaleTimeString("id-ID", {
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+          })
+          .replace(".", ":")
+          .replace(".", ":");
+        const dateString = now.toLocaleDateString("id-ID", {
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+        });
+
+        document.getElementById("realtime-clock").textContent = timeString;
+        document.getElementById("realtime-date").textContent = dateString;
+      }
+      setInterval(updateClock, 1000);
+      updateClock();
+
+      // --- CRUD LOGIC ---
+
+      let deleteTargetRow = null;
+      let editingRow = null;
+
+      // Open Add Modal
+      function openAddModal() {
+        document.getElementById("patient-modal").classList.remove("hidden");
+        document.getElementById("patient-modal").classList.add("flex");
+        document.getElementById("modal-title").textContent =
+          "Tambah Pasien Baru";
+        document.getElementById("patient-form").reset();
+        editingRow = null;
+        hideErrors();
+      }
+
+      // Open Edit Modal
+      function openEditModal(button) {
+        const row = button.closest("tr");
+        editingRow = row;
+
+        // Extract data from row
+        const name = row.querySelector(".name-cell").textContent.trim();
+        const cityFull = row.querySelector(".city-cell").textContent.trim();
+        const rm = row.querySelector(".rm-cell").textContent.trim();
+        const ageRaw = row.querySelector(".age-cell").textContent.trim();
+        const gender = row.querySelector(".gender-cell").textContent.trim();
+        const poliText = row.querySelector(".poli-cell").textContent.trim();
+        const statusText = row.querySelector(".status-cell").textContent.trim();
+
+        // Populate Form
+        document.getElementById("input-rm").value = rm;
+        document.getElementById("input-nama").value = name;
+        document.getElementById("input-gender").value = gender;
+        document.getElementById("input-address").value = cityFull; // Using city as address for demo
+
+        // Fuzzy matching for select boxes
+        const poliSelect = document.getElementById("input-poli");
+        for (let i = 0; i < poliSelect.options.length; i++) {
+          if (poliText.includes(poliSelect.options[i].value)) {
+            poliSelect.selectedIndex = i;
+            break;
+          }
+        }
+
+        const statusSelect = document.getElementById("input-status");
+        for (let i = 0; i < statusSelect.options.length; i++) {
+          if (statusText.includes(statusSelect.options[i].value)) {
+            statusSelect.selectedIndex = i;
+            break;
+          }
+        }
+
+        // Dummy values for fields not in table
+        document.getElementById("input-nik").value = "3201012010900001";
+        document.getElementById("input-phone").value = "081234567890";
+        document.getElementById("input-dob").value = "1990-01-01"; // Default
+
+        document.getElementById("modal-title").textContent = "Edit Data Pasien";
+        document.getElementById("patient-modal").classList.remove("hidden");
+        document.getElementById("patient-modal").classList.add("flex");
+        hideErrors();
+      }
+
+      function closePatientModal() {
+        document.getElementById("patient-modal").classList.add("hidden");
+        document.getElementById("patient-modal").classList.remove("flex");
+      }
+
+      function hideErrors() {
+        document
+          .querySelectorAll(".error-msg")
+          .forEach((el) => el.classList.add("hidden"));
+        document
+          .querySelectorAll("input, select, textarea")
+          .forEach((el) => el.classList.remove("border-error"));
+      }
+
+      // Handle Submit
+      function handleFormSubmit(e) {
+        e.preventDefault();
+        hideErrors();
+
+        // Validation
+        let isValid = true;
+        const fields = [
+          "input-rm",
+          "input-nik",
+          "input-nama",
+          "input-dob",
+          "input-gender",
+          "input-phone",
+          "input-poli",
+          "input-address",
+        ];
+
+        fields.forEach((id) => {
+          const el = document.getElementById(id);
+          if (!el.value.trim()) {
+            isValid = false;
+            el.classList.add("border-error");
+            el.parentElement
+              .querySelector(".error-msg")
+              .classList.remove("hidden");
+          }
+        });
+
+        if (!isValid) return;
+
+        // Get Values
+        const rm = document.getElementById("input-rm").value;
+        const nama = document.getElementById("input-nama").value;
+        const gender = document.getElementById("input-gender").value;
+        const poli = document.getElementById("input-poli").value;
+        const status = document.getElementById("input-status").value;
+        const address = document.getElementById("input-address").value;
+        const dob = document.getElementById("input-dob").value;
+
+        // Calculate Age
+        const birthDate = new Date(dob);
+        const age = new Date().getFullYear() - birthDate.getFullYear();
+
+        // Determine Status Color
+        let statusClass = "bg-gray-100 text-gray-700 border-gray-200";
+        if (status === "Rawat Jalan")
+          statusClass = "bg-success-light text-success-dark border-success/20";
+        if (status === "Rawat Inap")
+          statusClass = "bg-blue-100 text-blue-700 border-blue-200";
+        if (status === "Observasi")
+          statusClass = "bg-warning-light text-warning-dark border-warning/20";
+
+        // Determine Poli Color Dot
+        let poliColor = "bg-blue-500";
+        if (poli.includes("Gigi")) poliColor = "bg-orange-500";
+        if (poli.includes("Kandungan")) poliColor = "bg-green-500";
+        if (poli.includes("Jantung")) poliColor = "bg-purple-500";
+        if (poli.includes("IGD")) poliColor = "bg-red-500";
+
+        if (editingRow) {
+          // Update Existing Row
+          editingRow.querySelector(".name-cell").textContent = nama;
+          editingRow.querySelector(".city-cell").textContent = address; // simplified
+          editingRow.querySelector(".rm-cell").textContent = rm;
+          editingRow.querySelector(".age-cell").textContent = age + " Tahun";
+          editingRow.querySelector(".gender-cell").textContent = gender;
+          editingRow.querySelector(".poli-cell").parentElement.innerHTML =
+            `<span class="size-2 rounded-full ${poliColor}"></span><span class="text-sm text-foreground poli-cell">${poli}</span>`;
+          editingRow.querySelector(".status-cell").className =
+            `px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full border ${statusClass} status-cell`;
+          editingRow.querySelector(".status-cell").textContent = status;
+
+          showToast("Data pasien berhasil diperbarui.");
+        } else {
+          // Add New Row
+          const tbody = document.querySelector("tbody");
+          const newRow = document.createElement("tr");
+          newRow.className = "hover:bg-muted/30 transition-colors group";
+          newRow.innerHTML = `
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="flex items-center gap-3">
+                <div class="size-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold ring-2 ring-border">${nama.charAt(0)}</div>
+                <div>
+                  <div class="text-sm font-bold text-foreground name-cell">${nama}</div>
+                  <div class="text-xs text-secondary city-cell">${address}</div>
+                </div>
+              </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="flex items-center gap-2">
+                <i data-lucide="hash" class="size-3 text-secondary"></i>
+                <span class="text-sm font-mono text-foreground font-medium rm-cell">${rm}</span>
+              </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="text-sm text-foreground age-cell">${age} Tahun</div>
+              <div class="text-xs text-secondary gender-cell">${gender}</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="flex items-center gap-2">
+                <span class="size-2 rounded-full ${poliColor}"></span>
+                <span class="text-sm text-foreground poli-cell">${poli}</span>
+              </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full border ${statusClass} status-cell">
+                ${status}
+              </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-right">
+              <div class="flex items-center justify-end gap-2">
+                <button onclick="openEditModal(this)" class="p-2 rounded-lg text-secondary hover:text-primary hover:bg-primary/5 transition-all cursor-pointer" title="Edit">
+                  <i data-lucide="pencil" class="size-4"></i>
+                </button>
+                <button onclick="openDeleteModal(this)" class="p-2 rounded-lg text-secondary hover:text-error hover:bg-error/5 transition-all cursor-pointer" title="Hapus">
+                  <i data-lucide="trash-2" class="size-4"></i>
+                </button>
+              </div>
+            </td>
+        `;
+          tbody.prepend(newRow); // Add to top
+          lucide.createIcons(); // Re-init icons for new row
+          showToast("Pasien baru berhasil ditambahkan.");
+        }
+
+        closePatientModal();
+      }
+
+      // Delete Logic
+      function openDeleteModal(button) {
+        deleteTargetRow = button.closest("tr");
+        document.getElementById("delete-modal").classList.remove("hidden");
+        document.getElementById("delete-modal").classList.add("flex");
+      }
+
+      function closeDeleteModal() {
+        document.getElementById("delete-modal").classList.add("hidden");
+        document.getElementById("delete-modal").classList.remove("flex");
+        deleteTargetRow = null;
+      }
+
+      function confirmDelete() {
+        if (deleteTargetRow) {
+          deleteTargetRow.remove();
+          showToast("Data pasien berhasil dihapus.");
+          closeDeleteModal();
+        }
+      }
+
+      // Toast Logic
+      function showToast(message) {
+        const toast = document.getElementById("toast-notification");
+        document.getElementById("toast-message").textContent = message;
+        toast.classList.remove("hidden");
+        toast.classList.add("toast-enter");
+
+        setTimeout(() => {
+          toast.classList.remove("toast-enter");
+          toast.classList.add("hidden");
+        }, 3000);
+      }
+    </script>
+  </body>
+</html>

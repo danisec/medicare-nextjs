@@ -1,0 +1,1017 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MediCare Center - Hospital Dashboard</title>
+    <meta
+      name="description"
+      content="Modern Hospital Dashboard Overview for MediCare Center"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@100..900&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style type="text/tailwindcss">
+      :root {
+        --primary: #165dff;
+        --primary-hover: #0e4bd9;
+        --foreground: #080c1a;
+        --secondary: #6a7686;
+        --muted: #eff2f7;
+        --border: #f3f4f3;
+        --card-grey: #f1f3f6;
+        --success: #30b22d;
+        --success-light: #dcfce7;
+        --error: #ed6b60;
+        --error-light: #fee2e2;
+        --warning: #fed71f;
+        --warning-light: #fef9c3;
+        --font-sans: "Lexend Deca", sans-serif;
+      }
+      @theme inline {
+        --color-primary: var(--primary);
+        --color-primary-hover: var(--primary-hover);
+        --color-foreground: var(--foreground);
+        --color-secondary: var(--secondary);
+        --color-muted: var(--muted);
+        --color-border: var(--border);
+        --color-card-grey: var(--card-grey);
+        --color-success: var(--success);
+        --color-success-light: var(--success-light);
+        --color-error: var(--error);
+        --color-error-light: var(--error-light);
+        --color-warning: var(--warning);
+        --color-warning-light: var(--warning-light);
+        --font-sans: var(--font-sans);
+        --radius-card: 24px;
+        --radius-button: 50px;
+        --radius-icon: 12px;
+      }
+      .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+      }
+      .scrollbar-hide {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+    </style>
+  </head>
+  <body
+    class="font-sans bg-muted min-h-screen overflow-x-hidden text-foreground"
+  >
+    <!-- Mobile Overlay -->
+    <div
+      id="sidebar-overlay"
+      class="fixed inset-0 bg-black/80 z-40 lg:hidden hidden"
+      onclick="toggleSidebar()"
+    ></div>
+
+    <div class="flex h-screen max-h-screen overflow-hidden">
+      <!-- SIDEBAR -->
+      <aside
+        id="sidebar"
+        class="flex flex-col w-[280px] shrink-0 h-screen fixed inset-y-0 left-0 z-50 bg-white border-r border-border transform -translate-x-full lg:translate-x-0 transition-transform duration-300 overflow-hidden"
+      >
+        <!-- Top Bar with logo -->
+        <div
+          class="flex items-center justify-between border-b border-border h-[90px] px-5 gap-3"
+        >
+          <div class="flex items-center gap-3">
+            <div
+              class="size-11 bg-primary rounded-xl flex items-center justify-center shrink-0"
+            >
+              <i data-lucide="activity" class="size-6 text-white"></i>
+            </div>
+            <div>
+              <h1 class="font-bold text-lg leading-tight">MediCare</h1>
+              <p class="text-xs text-secondary font-medium">Center</p>
+            </div>
+          </div>
+          <button
+            onclick="toggleSidebar()"
+            aria-label="Close sidebar"
+            class="lg:hidden size-11 flex shrink-0 bg-white rounded-xl p-[10px] items-center justify-center ring-1 ring-border hover:ring-primary transition-all duration-300 cursor-pointer"
+          >
+            <i data-lucide="x" class="size-6 text-secondary"></i>
+          </button>
+        </div>
+
+        <!-- Navigation Menu -->
+        <div class="flex flex-col p-5 gap-6 overflow-y-auto flex-1">
+          <div class="flex flex-col gap-4">
+            <h3
+              class="font-medium text-xs text-secondary uppercase tracking-wider"
+            >
+              Menu Utama
+            </h3>
+            <div class="flex flex-col gap-1">
+              <!-- Active menu item -->
+              <a href="#" class="group active cursor-pointer">
+                <div
+                  class="flex items-center rounded-xl p-4 gap-3 bg-white group-[.active]:bg-primary/5 group-hover:bg-muted transition-all duration-300"
+                >
+                  <i
+                    data-lucide="layout-dashboard"
+                    class="size-6 text-secondary group-[.active]:text-primary group-hover:text-foreground transition-all duration-300"
+                  ></i>
+                  <span
+                    class="font-medium text-secondary group-[.active]:font-semibold group-[.active]:text-primary group-hover:text-foreground transition-all duration-300"
+                    >Beranda</span
+                  >
+                </div>
+              </a>
+              <!-- Pasien -->
+              <a href="#" class="group cursor-pointer">
+                <div
+                  class="flex items-center rounded-xl p-4 gap-3 bg-white hover:bg-muted transition-all duration-300"
+                >
+                  <i
+                    data-lucide="users"
+                    class="size-6 text-secondary group-hover:text-foreground transition-all duration-300"
+                  ></i>
+                  <span
+                    class="font-medium text-secondary group-hover:text-foreground transition-all duration-300"
+                    >Pasien</span
+                  >
+                </div>
+              </a>
+              <!-- Administrasi -->
+              <a href="#" class="group cursor-pointer">
+                <div
+                  class="flex items-center rounded-xl p-4 gap-3 bg-white hover:bg-muted transition-all duration-300"
+                >
+                  <i
+                    data-lucide="folder-kanban"
+                    class="size-6 text-secondary group-hover:text-foreground transition-all duration-300"
+                  ></i>
+                  <span
+                    class="font-medium text-secondary group-hover:text-foreground transition-all duration-300"
+                    >Administrasi</span
+                  >
+                </div>
+              </a>
+            </div>
+          </div>
+
+          <div class="flex flex-col gap-4 mt-auto">
+            <h3
+              class="font-medium text-xs text-secondary uppercase tracking-wider"
+            >
+              Lainnya
+            </h3>
+            <div class="flex flex-col gap-1">
+              <a href="#" class="group cursor-pointer">
+                <div
+                  class="flex items-center rounded-xl p-4 gap-3 bg-white hover:bg-muted transition-all duration-300"
+                >
+                  <i
+                    data-lucide="settings"
+                    class="size-6 text-secondary group-hover:text-foreground transition-all duration-300"
+                  ></i>
+                  <span
+                    class="font-medium text-secondary group-hover:text-foreground transition-all duration-300"
+                    >Pengaturan</span
+                  >
+                </div>
+              </a>
+              <a href="#" class="group cursor-pointer">
+                <div
+                  class="flex items-center rounded-xl p-4 gap-3 bg-white hover:bg-muted transition-all duration-300"
+                >
+                  <i
+                    data-lucide="help-circle"
+                    class="size-6 text-secondary group-hover:text-foreground transition-all duration-300"
+                  ></i>
+                  <span
+                    class="font-medium text-secondary group-hover:text-foreground transition-all duration-300"
+                    >Bantuan</span
+                  >
+                </div>
+              </a>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- MAIN CONTENT -->
+      <main
+        class="flex-1 lg:ml-[280px] flex flex-col bg-muted min-h-screen overflow-hidden"
+      >
+        <!-- Top Header Bar -->
+        <header
+          class="flex items-center justify-between w-full h-[90px] shrink-0 bg-white border-b border-border px-5 md:px-8"
+        >
+          <!-- Left: Mobile menu & Title -->
+          <div class="flex items-center gap-4">
+            <button
+              onclick="toggleSidebar()"
+              aria-label="Open menu"
+              class="lg:hidden size-11 flex items-center justify-center rounded-xl ring-1 ring-border hover:ring-primary transition-all duration-300 cursor-pointer"
+            >
+              <i data-lucide="menu" class="size-6 text-foreground"></i>
+            </button>
+            <div class="hidden lg:flex flex-col">
+              <h2 class="font-bold text-2xl text-foreground">Overview</h2>
+              <p class="text-sm text-secondary">
+                Selamat datang kembali, Dr. Hartono
+              </p>
+            </div>
+          </div>
+
+          <!-- Center: Real-time Date/Time (Desktop only) -->
+          <div
+            class="hidden md:flex items-center gap-2 px-4 py-2 bg-muted rounded-xl"
+          >
+            <i data-lucide="clock" class="size-4 text-primary"></i>
+            <span
+              id="realtime-clock"
+              class="font-mono text-sm font-semibold text-primary"
+              >00:00:00</span
+            >
+            <span class="text-secondary text-sm">|</span>
+            <span id="realtime-date" class="text-sm font-medium text-foreground"
+              >Jan 01, 2024</span
+            >
+          </div>
+
+          <!-- Right: Actions & Profile -->
+          <div class="flex items-center gap-3">
+            <button
+              onclick="openSearchModal()"
+              class="size-11 flex items-center justify-center rounded-xl ring-1 ring-border hover:ring-primary transition-all duration-300 cursor-pointer"
+              aria-label="Search"
+            >
+              <i data-lucide="search" class="size-6 text-secondary"></i>
+            </button>
+            <button
+              class="size-11 flex items-center justify-center rounded-xl ring-1 ring-border hover:ring-primary transition-all duration-300 cursor-pointer relative"
+              aria-label="Notifications"
+            >
+              <i data-lucide="bell" class="size-6 text-secondary"></i>
+              <span
+                class="absolute top-2.5 right-3 size-2 rounded-full bg-error ring-2 ring-white"
+              ></span>
+            </button>
+
+            <!-- Doctor Profile -->
+            <div
+              class="hidden md:flex items-center gap-3 pl-3 border-l border-border ml-2"
+            >
+              <div class="text-right">
+                <p class="font-semibold text-foreground text-sm">
+                  Dr. Budi Hartono
+                </p>
+                <p class="text-secondary text-xs">Spesialis Jantung</p>
+              </div>
+              <div class="relative">
+                <img
+                  src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=100&h=100&fit=crop"
+                  alt="Dr. Profile"
+                  class="size-11 rounded-full object-cover ring-2 ring-border"
+                />
+                <span
+                  class="absolute bottom-0 right-0 size-3 rounded-full bg-success ring-2 ring-white"
+                ></span>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <!-- Page Content Scroll Area -->
+        <div class="flex-1 overflow-y-auto p-5 md:p-8">
+          <!-- HERO CARDS GRID -->
+          <div
+            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-6"
+          >
+            <!-- Card 1: Total Pasien -->
+            <div
+              class="flex flex-col rounded-2xl border border-border p-5 gap-3 bg-white shadow-sm hover:shadow-md transition-all duration-300"
+            >
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <div
+                    class="size-10 bg-primary/10 rounded-xl flex items-center justify-center"
+                  >
+                    <i data-lucide="users" class="size-5 text-primary"></i>
+                  </div>
+                  <p class="font-medium text-secondary text-sm">Total Pasien</p>
+                </div>
+                <span
+                  class="text-success text-xs font-bold bg-success-light px-2 py-1 rounded-full"
+                  >+12%</span
+                >
+              </div>
+              <div>
+                <p class="font-bold text-[28px] leading-tight text-foreground">
+                  14.2K
+                </p>
+                <p class="text-xs text-secondary mt-1">Bulan ini</p>
+              </div>
+            </div>
+
+            <!-- Card 2: Dokter Aktif -->
+            <div
+              class="flex flex-col rounded-2xl border border-border p-5 gap-3 bg-white shadow-sm hover:shadow-md transition-all duration-300"
+            >
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <div
+                    class="size-10 bg-success/10 rounded-xl flex items-center justify-center"
+                  >
+                    <i
+                      data-lucide="stethoscope"
+                      class="size-5 text-success"
+                    ></i>
+                  </div>
+                  <p class="font-medium text-secondary text-sm">Dokter Aktif</p>
+                </div>
+                <span
+                  class="flex size-2 rounded-full bg-success animate-pulse"
+                ></span>
+              </div>
+              <div>
+                <p class="font-bold text-[28px] leading-tight text-foreground">
+                  42
+                </p>
+                <p class="text-xs text-secondary mt-1">Sedang bertugas</p>
+              </div>
+            </div>
+
+            <!-- Card 3: Bed Tersedia -->
+            <div
+              class="flex flex-col rounded-2xl border border-border p-5 gap-3 bg-white shadow-sm hover:shadow-md transition-all duration-300"
+            >
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <div
+                    class="size-10 bg-warning/10 rounded-xl flex items-center justify-center"
+                  >
+                    <i data-lucide="bed" class="size-5 text-warning-dark"></i>
+                  </div>
+                  <p class="font-medium text-secondary text-sm">Bed Tersedia</p>
+                </div>
+                <span
+                  class="text-error text-xs font-bold bg-error-light px-2 py-1 rounded-full"
+                  >Low</span
+                >
+              </div>
+              <div>
+                <p class="font-bold text-[28px] leading-tight text-foreground">
+                  8
+                </p>
+                <p class="text-xs text-secondary mt-1">Dari 150 total bed</p>
+              </div>
+            </div>
+
+            <!-- Card 4: Appointment Hari Ini -->
+            <div
+              class="flex flex-col rounded-2xl border border-border p-5 gap-3 bg-white shadow-sm hover:shadow-md transition-all duration-300"
+            >
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <div
+                    class="size-10 bg-primary/10 rounded-xl flex items-center justify-center"
+                  >
+                    <i
+                      data-lucide="calendar-check"
+                      class="size-5 text-primary"
+                    ></i>
+                  </div>
+                  <p class="font-medium text-secondary text-sm">Janji Temu</p>
+                </div>
+              </div>
+              <div>
+                <p class="font-bold text-[28px] leading-tight text-foreground">
+                  85
+                </p>
+                <div
+                  class="w-full bg-muted rounded-full h-1.5 mt-2 overflow-hidden"
+                >
+                  <div
+                    class="bg-primary h-1.5 rounded-full"
+                    style="width: 70%"
+                  ></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- MIDDLE SECTION (Chart 65% + IGD Widget 35%) -->
+          <div class="flex flex-col lg:flex-row gap-6 mb-6">
+            <!-- Area Chart: Statistik Kunjungan (65%) -->
+            <div
+              class="w-full lg:w-[65%] flex flex-col rounded-2xl border border-border bg-white p-6 shadow-sm"
+            >
+              <div class="flex items-center justify-between mb-6">
+                <div>
+                  <h3 class="font-bold text-lg text-foreground">
+                    Statistik Kunjungan
+                  </h3>
+                  <p class="text-sm text-secondary">Pasien Rawat Jalan & IGD</p>
+                </div>
+                <div class="flex bg-muted p-1 rounded-xl">
+                  <button
+                    class="px-3 py-1.5 bg-white rounded-lg shadow-sm text-xs font-semibold text-primary"
+                  >
+                    Mingguan
+                  </button>
+                  <button
+                    class="px-3 py-1.5 text-xs font-medium text-secondary hover:text-foreground"
+                  >
+                    Bulanan
+                  </button>
+                </div>
+              </div>
+              <div class="relative w-full h-[300px]">
+                <canvas id="visitChart"></canvas>
+              </div>
+            </div>
+
+            <!-- Widget: Status IGD (35%) -->
+            <div
+              class="w-full lg:w-[35%] flex flex-col rounded-2xl border border-border bg-white p-6 shadow-sm"
+            >
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="font-bold text-lg text-foreground">Status IGD</h3>
+                <span
+                  class="flex items-center gap-1.5 px-2 py-1 bg-error/10 text-error text-xs font-bold rounded-lg"
+                >
+                  <span
+                    class="size-1.5 bg-error rounded-full animate-pulse"
+                  ></span>
+                  High Traffic
+                </span>
+              </div>
+
+              <!-- IGD Stats Summary -->
+              <div class="flex gap-4 mb-6">
+                <div class="flex-1 p-3 bg-muted rounded-xl text-center">
+                  <p class="text-xs text-secondary font-medium uppercase">
+                    Total Pasien
+                  </p>
+                  <p class="text-xl font-bold text-foreground mt-1">24</p>
+                </div>
+                <div class="flex-1 p-3 bg-success/10 rounded-xl text-center">
+                  <p class="text-xs text-success-dark font-medium uppercase">
+                    Tertangani
+                  </p>
+                  <p class="text-xl font-bold text-success mt-1">18</p>
+                </div>
+                <div class="flex-1 p-3 bg-warning/10 rounded-xl text-center">
+                  <p class="text-xs text-warning-dark font-medium uppercase">
+                    Menunggu
+                  </p>
+                  <p class="text-xl font-bold text-warning-dark mt-1">6</p>
+                </div>
+              </div>
+
+              <!-- Room Status List -->
+              <div
+                class="flex flex-col gap-3 flex-1 overflow-y-auto max-h-[220px] pr-1"
+              >
+                <div
+                  class="flex items-center justify-between p-3 rounded-xl border border-border bg-gray-50"
+                >
+                  <div class="flex items-center gap-3">
+                    <div
+                      class="size-8 rounded-lg bg-error/10 flex items-center justify-center text-xs font-bold text-error"
+                    >
+                      R1
+                    </div>
+                    <div>
+                      <p class="text-sm font-semibold text-foreground">
+                        Trauma Center
+                      </p>
+                      <p class="text-xs text-secondary">Dr. Sarah (Bedah)</p>
+                    </div>
+                  </div>
+                  <span
+                    class="text-xs font-medium px-2 py-1 bg-error text-white rounded-md"
+                    >Penuh</span
+                  >
+                </div>
+
+                <div
+                  class="flex items-center justify-between p-3 rounded-xl border border-border bg-gray-50"
+                >
+                  <div class="flex items-center gap-3">
+                    <div
+                      class="size-8 rounded-lg bg-error/10 flex items-center justify-center text-xs font-bold text-error"
+                    >
+                      R2
+                    </div>
+                    <div>
+                      <p class="text-sm font-semibold text-foreground">
+                        Resusitasi
+                      </p>
+                      <p class="text-xs text-secondary">Dr. Anton (Anestesi)</p>
+                    </div>
+                  </div>
+                  <span
+                    class="text-xs font-medium px-2 py-1 bg-error text-white rounded-md"
+                    >Penuh</span
+                  >
+                </div>
+
+                <div
+                  class="flex items-center justify-between p-3 rounded-xl border border-border bg-gray-50"
+                >
+                  <div class="flex items-center gap-3">
+                    <div
+                      class="size-8 rounded-lg bg-success/10 flex items-center justify-center text-xs font-bold text-success"
+                    >
+                      R3
+                    </div>
+                    <div>
+                      <p class="text-sm font-semibold text-foreground">
+                        Observasi A
+                      </p>
+                      <p class="text-xs text-secondary">Kosong</p>
+                    </div>
+                  </div>
+                  <span
+                    class="text-xs font-medium px-2 py-1 bg-success text-white rounded-md"
+                    >Tersedia</span
+                  >
+                </div>
+                <div
+                  class="flex items-center justify-between p-3 rounded-xl border border-border bg-gray-50"
+                >
+                  <div class="flex items-center gap-3">
+                    <div
+                      class="size-8 rounded-lg bg-warning/10 flex items-center justify-center text-xs font-bold text-warning-dark"
+                    >
+                      R4
+                    </div>
+                    <div>
+                      <p class="text-sm font-semibold text-foreground">
+                        Observasi B
+                      </p>
+                      <p class="text-xs text-secondary">Sterilisasi</p>
+                    </div>
+                  </div>
+                  <span
+                    class="text-xs font-medium px-2 py-1 bg-warning text-foreground rounded-md"
+                    >Cleaning</span
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- BOTTOM SECTION: Table Aktivitas Terbaru -->
+          <div
+            class="flex flex-col rounded-2xl border border-border bg-white shadow-sm overflow-hidden"
+          >
+            <div
+              class="flex items-center justify-between p-6 border-b border-border"
+            >
+              <h3 class="font-bold text-lg text-foreground">
+                Aktivitas Terbaru
+              </h3>
+              <a
+                href="#"
+                class="cursor-pointer text-sm font-semibold text-primary hover:underline"
+                >Lihat Semua</a
+              >
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="w-full min-w-[800px]">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th
+                      class="px-6 py-3 text-left text-xs font-semibold text-secondary uppercase tracking-wider"
+                    >
+                      Pasien
+                    </th>
+                    <th
+                      class="px-6 py-3 text-left text-xs font-semibold text-secondary uppercase tracking-wider"
+                    >
+                      Tipe Layanan
+                    </th>
+                    <th
+                      class="px-6 py-3 text-left text-xs font-semibold text-secondary uppercase tracking-wider"
+                    >
+                      Dokter
+                    </th>
+                    <th
+                      class="px-6 py-3 text-left text-xs font-semibold text-secondary uppercase tracking-wider"
+                    >
+                      Waktu
+                    </th>
+                    <th
+                      class="px-6 py-3 text-left text-xs font-semibold text-secondary uppercase tracking-wider"
+                    >
+                      Status
+                    </th>
+                    <th
+                      class="px-6 py-3 text-right text-xs font-semibold text-secondary uppercase tracking-wider"
+                    >
+                      Aksi
+                    </th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-border bg-white">
+                  <!-- Row 1 -->
+                  <tr class="hover:bg-muted/30 transition-colors">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <div class="flex items-center gap-3">
+                        <img
+                          class="size-9 rounded-full object-cover ring-1 ring-border"
+                          src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop"
+                          alt="Pasien"
+                        />
+                        <div>
+                          <div class="text-sm font-semibold text-foreground">
+                            Ahmad Santoso
+                          </div>
+                          <div class="text-xs text-secondary">RM-2024-001</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <div class="text-sm font-medium text-foreground">
+                        Rawat Jalan
+                      </div>
+                      <div class="text-xs text-secondary">
+                        Poli Penyakit Dalam
+                      </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <div class="flex items-center gap-2">
+                        <div
+                          class="size-6 bg-primary/10 rounded-full flex items-center justify-center text-[10px] font-bold text-primary"
+                        >
+                          DH
+                        </div>
+                        <span class="text-sm text-secondary">Dr. Hartono</span>
+                      </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <div class="text-sm text-foreground">10:45 WIB</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <span
+                        class="px-2.5 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-success-light text-success-dark"
+                      >
+                        Selesai
+                      </span>
+                    </td>
+                    <td
+                      class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"
+                    >
+                      <button
+                        class="text-secondary hover:text-primary transition-colors"
+                        aria-label="Detail"
+                      >
+                        <i data-lucide="file-text" class="size-4"></i>
+                      </button>
+                    </td>
+                  </tr>
+
+                  <!-- Row 2 -->
+                  <tr class="hover:bg-muted/30 transition-colors">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <div class="flex items-center gap-3">
+                        <img
+                          class="size-9 rounded-full object-cover ring-1 ring-border"
+                          src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop"
+                          alt="Pasien"
+                        />
+                        <div>
+                          <div class="text-sm font-semibold text-foreground">
+                            Siti Aminah
+                          </div>
+                          <div class="text-xs text-secondary">RM-2024-042</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <div class="text-sm font-medium text-foreground">IGD</div>
+                      <div class="text-xs text-secondary">Darurat - Asma</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <div class="flex items-center gap-2">
+                        <div
+                          class="size-6 bg-error/10 rounded-full flex items-center justify-center text-[10px] font-bold text-error"
+                        >
+                          DS
+                        </div>
+                        <span class="text-sm text-secondary">Dr. Sarah</span>
+                      </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <div class="text-sm text-foreground">11:15 WIB</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <span
+                        class="px-2.5 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-warning-light text-warning-dark"
+                      >
+                        Penanganan
+                      </span>
+                    </td>
+                    <td
+                      class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"
+                    >
+                      <button
+                        class="text-secondary hover:text-primary transition-colors"
+                        aria-label="Detail"
+                      >
+                        <i data-lucide="file-text" class="size-4"></i>
+                      </button>
+                    </td>
+                  </tr>
+
+                  <!-- Row 3 -->
+                  <tr class="hover:bg-muted/30 transition-colors">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <div class="flex items-center gap-3">
+                        <img
+                          class="size-9 rounded-full object-cover ring-1 ring-border"
+                          src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop"
+                          alt="Pasien"
+                        />
+                        <div>
+                          <div class="text-sm font-semibold text-foreground">
+                            Budi Santoso
+                          </div>
+                          <div class="text-xs text-secondary">RM-2024-089</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <div class="text-sm font-medium text-foreground">
+                        Checkup
+                      </div>
+                      <div class="text-xs text-secondary">Poli Jantung</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <div class="flex items-center gap-2">
+                        <div
+                          class="size-6 bg-primary/10 rounded-full flex items-center justify-center text-[10px] font-bold text-primary"
+                        >
+                          DH
+                        </div>
+                        <span class="text-sm text-secondary">Dr. Hartono</span>
+                      </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <div class="text-sm text-foreground">11:30 WIB</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <span
+                        class="px-2.5 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800"
+                      >
+                        Menunggu
+                      </span>
+                    </td>
+                    <td
+                      class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"
+                    >
+                      <button
+                        class="text-secondary hover:text-primary transition-colors"
+                        aria-label="Detail"
+                      >
+                        <i data-lucide="file-text" class="size-4"></i>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Footer Copyright -->
+          <div class="mt-8 text-center md:text-left text-xs text-secondary">
+            &copy; 2024 MediCare Center Hospital System. All rights reserved.
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Search Modal -->
+    <div
+      id="search-modal"
+      class="fixed inset-0 bg-black/50 z-[100] hidden items-center justify-center p-4"
+    >
+      <div
+        class="bg-white rounded-3xl w-full max-w-2xl max-h-[80vh] overflow-hidden shadow-2xl"
+      >
+        <div class="p-4 border-b border-border">
+          <div class="flex items-center gap-3 bg-muted rounded-xl px-4">
+            <i data-lucide="search" class="size-5 text-secondary"></i>
+            <input
+              type="text"
+              id="search-input"
+              placeholder="Cari pasien, dokter, atau layanan..."
+              class="flex-1 py-3 bg-transparent outline-none text-foreground placeholder:text-secondary"
+            />
+            <button
+              onclick="closeSearchModal()"
+              class="text-xs bg-white px-2 py-1 rounded border border-border text-secondary"
+            >
+              ESC
+            </button>
+          </div>
+        </div>
+        <div class="p-4">
+          <p class="text-sm text-secondary mb-3">Pencarian Terakhir</p>
+          <div class="flex flex-col gap-2">
+            <a
+              href="#"
+              class="flex items-center gap-3 p-3 rounded-xl hover:bg-muted transition-all cursor-pointer"
+            >
+              <div
+                class="size-10 bg-primary/10 rounded-xl flex items-center justify-center"
+              >
+                <i data-lucide="user" class="size-5 text-primary"></i>
+              </div>
+              <div>
+                <p class="font-medium text-foreground">Ahmad Santoso</p>
+                <p class="text-xs text-secondary">Pasien - RM-2024-001</p>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Page Not Found Modal -->
+    <div
+      id="page-not-found-modal"
+      class="fixed inset-0 bg-black/50 z-[100] hidden flex items-center justify-center p-4"
+    >
+      <div class="bg-white rounded-card p-6 max-w-sm w-full text-center">
+        <div
+          class="w-16 h-16 bg-warning-light rounded-full flex items-center justify-center mx-auto mb-4"
+        >
+          <i data-lucide="alert-triangle" class="w-8 h-8 text-warning-dark"></i>
+        </div>
+        <h3 class="text-foreground text-xl font-bold mb-2">
+          Halaman Belum Tersedia
+        </h3>
+        <p class="text-gray-500 text-sm mb-6">
+          Fitur ini belum diimplementasikan dalam demo ini.
+        </p>
+        <button
+          onclick="
+            document
+              .getElementById('page-not-found-modal')
+              .classList.add('hidden')
+          "
+          class="w-full px-4 py-2.5 bg-primary text-white rounded-button font-medium hover:bg-primary-hover transition-all duration-200 cursor-pointer"
+        >
+          Mengerti
+        </button>
+      </div>
+    </div>
+
+    <script>
+      // Initialize Icons
+      lucide.createIcons();
+
+      // Sidebar Toggle
+      function toggleSidebar() {
+        const sidebar = document.getElementById("sidebar");
+        const overlay = document.getElementById("sidebar-overlay");
+        sidebar.classList.toggle("-translate-x-full");
+        overlay.classList.toggle("hidden");
+        document.body.classList.toggle("overflow-hidden");
+      }
+
+      // Search Modal
+      function openSearchModal() {
+        const modal = document.getElementById("search-modal");
+        modal.classList.remove("hidden");
+        modal.classList.add("flex");
+        document.getElementById("search-input").focus();
+      }
+      function closeSearchModal() {
+        const modal = document.getElementById("search-modal");
+        modal.classList.add("hidden");
+        modal.classList.remove("flex");
+      }
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape") closeSearchModal();
+      });
+      document
+        .getElementById("search-modal")
+        .addEventListener("click", function (e) {
+          if (e.target === this) closeSearchModal();
+        });
+
+      // Link Handler for Demo
+      document.querySelectorAll("a").forEach((link) => {
+        link.addEventListener("click", function (e) {
+          e.preventDefault();
+          if (!this.classList.contains("active")) {
+            document
+              .getElementById("page-not-found-modal")
+              .classList.remove("hidden");
+          }
+        });
+      });
+
+      // Real-time Clock
+      function updateClock() {
+        const now = new Date();
+        const timeString = now
+          .toLocaleTimeString("id-ID", {
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+          })
+          .replace(".", ":")
+          .replace(".", ":");
+        const dateString = now.toLocaleDateString("id-ID", {
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+        });
+
+        document.getElementById("realtime-clock").textContent = timeString;
+        document.getElementById("realtime-date").textContent = dateString;
+      }
+      setInterval(updateClock, 1000);
+      updateClock();
+
+      // Chart Configuration
+      const ctx = document.getElementById("visitChart").getContext("2d");
+
+      // Create gradient
+      const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+      gradient.addColorStop(0, "rgba(22, 93, 255, 0.2)"); // Brand color low opacity
+      gradient.addColorStop(1, "rgba(22, 93, 255, 0)");
+
+      new Chart(ctx, {
+        type: "line",
+        data: {
+          labels: ["Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min"],
+          datasets: [
+            {
+              label: "Kunjungan",
+              data: [120, 150, 180, 140, 160, 90, 60],
+              borderColor: "#165DFF",
+              backgroundColor: gradient,
+              borderWidth: 3,
+              pointBackgroundColor: "#fff",
+              pointBorderColor: "#165DFF",
+              pointBorderWidth: 2,
+              pointRadius: 4,
+              pointHoverRadius: 6,
+              fill: true,
+              tension: 0.4,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: "#080C1A",
+              padding: 12,
+              cornerRadius: 8,
+              titleFont: { family: "Lexend Deca", size: 13 },
+              bodyFont: { family: "Lexend Deca", size: 13 },
+              displayColors: false,
+              callbacks: {
+                label: function (context) {
+                  return context.parsed.y + " Pasien";
+                },
+              },
+            },
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              grid: {
+                color: "#F3F4F3",
+                drawBorder: false,
+              },
+              ticks: {
+                font: { family: "Lexend Deca", size: 11 },
+                color: "#6A7686",
+                padding: 10,
+              },
+            },
+            x: {
+              grid: { display: false },
+              ticks: {
+                font: { family: "Lexend Deca", size: 11 },
+                color: "#6A7686",
+                padding: 10,
+              },
+            },
+          },
+        },
+      });
+    </script>
+  </body>
+</html>
